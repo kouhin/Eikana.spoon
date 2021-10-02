@@ -48,6 +48,7 @@ spoon.SpoonInstall.repos.Eikana = {
 
 spoon.SpoonInstall:andUse("Eikana", {
   repo = "Eikana",
+  start = true
 })
 
 -- Or with custom mapping
@@ -58,7 +59,8 @@ spoon.SpoonInstall:andUse("Eikana", {
     userMapping = {
       rightalt = "Pinyin - Simplified"
     }
-  }
+  },
+  start = true
 })
 
 ```
