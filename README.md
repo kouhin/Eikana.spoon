@@ -6,7 +6,7 @@
 
 Eikana is a hammerspoon plugin that can be used to switch between alphanumeric/kana mode by pressing left / right command key only. Inspired by [cmd-eikana](https://github.com/iMasanari/cmd-eikana).
 
-And it can also be used to switch between input methods by only pressing modifier keys (`cmd` / `rightcmd` / `alt` / `rightalt` / `shift` / `rightshift`).
+And it can also be used to switch between input methods by only pressing modifier keys (`cmd` / `rightcmd` / `alt` / `rightalt` / `shift` / `rightshift` / `ctrl` / `rightctrl`).
 
 ## Installation
 
