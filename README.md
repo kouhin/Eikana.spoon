@@ -4,6 +4,10 @@
 
 ## What's that?
 
+Eikana is a hammerspoon plugin that can be used to switch between alphanumeric/kana mode by pressing left / right command key only. Inspired by [cmd-eikana](https://github.com/iMasanari/cmd-eikana).
+
+And it can also be used to switch between input methods by only pressing modifier keys (`cmd` / `rightcmd` / `alt` / `rightalt` / `shift` / `rightshift`).
+
 ## Installation
 
 Install [Hammerspoon](http://www.hammerspoon.org) and extract [Eikana.spoon.zip](https://github.com/kouhin/Eikana.spoon/releases/latest) to `~/.hammerspoon/Spoons`.
@@ -58,6 +62,13 @@ spoon.SpoonInstall:andUse("Eikana", {
 })
 
 ```
+
+## How to get the name of the input method?
+
+1. Open `Console` from hammperspoon menu.
+2. Enter this command without executing it yet:`hs.keycodes.currentMethod()`.
+3. Switch to desired input method
+4. Run command
 
 ## License
 
