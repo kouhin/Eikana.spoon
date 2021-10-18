@@ -29,6 +29,8 @@ spoon.Eikana.userMapping = {
   rightcmd = 'Pinyin - Simplified',
   rightalt = 'Wubi - Simplified'
 }
+-- Uncomment the following line to override default mapping (cmd: Eisuu, rightcmd: Kana)
+-- spoon.Eikana.override
 spoon.Eikana:start()                   -- enable keyboard shortcuts
 
 ```
@@ -56,6 +58,8 @@ spoon.SpoonInstall:andUse("Eikana", {
 spoon.SpoonInstall:andUse("Eikana", {
   repo = "Eikana",
   config = {
+    -- Uncomment the following line to override default mapping (cmd: Eisuu, rightcmd: Kana)
+    -- override = true,
     userMapping = {
       rightalt = "Pinyin - Simplified"
     }

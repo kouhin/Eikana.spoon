@@ -7,7 +7,7 @@ obj.index = obj
 
 -- Metadata
 obj.name = "Eikana"
-obj.version = "1.0.0"
+obj.version = "1.1.0"
 obj.author = "Bin Hou"
 obj.license = "MIT"
 obj.homepage = "https://github.com/kouhin/Eikana.spoon"
@@ -16,11 +16,10 @@ obj._defaultMapping = {
    cmd = 'Romaji',
    rightcmd = 'Hiragana'
 }
-obj.userMapping = {}
-obj.mapping = {}
 
-for k, v in pairs(obj._defaultMapping) do obj.mapping[k] = v end
-for k, v in pairs(obj.userMapping) do obj.mapping[k] = v end
+-- Config
+obj.userMapping = {}
+obj.override = false
 
 function obj:handleEvent(ev)
    local key = hs.keycodes.map[ev:getKeyCode()]
@@ -38,6 +37,12 @@ function obj:handleEvent(ev)
 end
 
 function obj:start()
+   self.mapping = {}
+   if not self.override then
+      for k, v in pairs(self._defaultMapping) do self.mapping[k] = v end
+   end
+   for k, v in pairs(self.userMapping) do self.mapping[k] = v end
+
    if self.eventtap == nil then
       self.eventtap = self:bindKeyMethodMapping()
    end
