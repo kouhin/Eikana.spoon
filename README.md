@@ -30,7 +30,7 @@ spoon.Eikana.userMapping = {
   rightalt = 'Wubi - Simplified'
 }
 -- Uncomment the following line to override default mapping (cmd: Eisuu, rightcmd: Kana)
--- spoon.Eikana.override
+-- spoon.Eikana.override = true
 spoon.Eikana:start()                   -- enable keyboard shortcuts
 
 ```
