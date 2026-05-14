@@ -13,7 +13,7 @@
 ---   eikana:start()
 ---
 --- @author Bin Hou
---- @version 1.1.0
+--- @version 2.0.0
 --- @license MIT
 --- @homepage https://github.com/kouhin/Eikana.spoon
 
@@ -23,7 +23,7 @@ obj.__index = obj
 
 -- Metadata
 obj.name = "Eikana"
-obj.version = "1.1.0"
+obj.version = "2.0.0"
 obj.author = "Bin Hou"
 obj.license = "MIT"
 obj.homepage = "https://github.com/kouhin/Eikana.spoon"
