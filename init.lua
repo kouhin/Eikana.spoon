@@ -4,7 +4,7 @@
 --- It allows users to switch between different input methods using modifier keys.
 ---
 --- Features:
----   - Switch between Romaji and Hiragana input methods
+---   - Switch between input sources by source ID
 ---   - Customizable key mappings
 ---   - Support for both default and user-defined mappings
 ---
@@ -30,8 +30,8 @@ obj.homepage = "https://github.com/kouhin/Eikana.spoon"
 
 -- Default configuration
 obj._defaultMapping = {
-    cmd = 'Romaji',
-    rightcmd = 'Hiragana'
+    cmd = 'com.apple.keylayout.ABC',
+    rightcmd = 'com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese'
 }
 
 -- User configuration
@@ -40,6 +40,22 @@ obj.override = false
 
 -- Initialize logger
 obj.logger = hs.logger.new('Eikana', 'info')
+
+local specialKeyCodes = {
+    eisuu = 102,
+    kana = 104
+}
+
+local modifierKeys = {
+    cmd = true,
+    rightcmd = true,
+    alt = true,
+    rightalt = true,
+    shift = true,
+    rightshift = true,
+    ctrl = true,
+    rightctrl = true
+}
 
 --[[
    Utility Functions
@@ -56,27 +72,53 @@ local function getTableSize(t)
     return count
 end
 
+--- Resolve a configured key name to a numeric keycode
+--- @param key string The configured key name
+--- @return number|nil The resolved keycode
+local function resolveKeyCode(key)
+    return specialKeyCodes[key] or hs.keycodes.map[key]
+end
+
+--- Build keycode-based mappings for event handling
+--- @param mapping table The key-to-source-ID mapping
+--- @return table, table, table Source ID mapping, modifier keycodes, regular keycodes
+local function buildKeyCodeMapping(mapping)
+    local keyCodeMapping = {}
+    local modifierKeyCodes = {}
+    local regularKeyCodes = {}
+
+    for key, sourceID in pairs(mapping) do
+        local code = resolveKeyCode(key)
+
+        if code == nil then
+            obj.logger.wf("Ignoring unknown key mapping: %s", key)
+        elseif specialKeyCodes[key] ~= nil then
+            keyCodeMapping[code] = sourceID
+            regularKeyCodes[code] = true
+        elseif modifierKeys[key] then
+            keyCodeMapping[code] = sourceID
+            modifierKeyCodes[code] = true
+        else
+            obj.logger.wf("Ignoring unsupported non-modifier key mapping: %s", key)
+        end
+    end
+
+    return keyCodeMapping, modifierKeyCodes, regularKeyCodes
+end
+
 --[[
    Input Method Management
 ]]
 
---- Switch to the specified input method
---- @param method string The name of the input method to switch to
-local function switchInputMethod(method)
-    if method == 'Romaji' then
-        hs.eventtap.keyStroke({}, 102)
-        return
-    elseif method == 'Hiragana' then
-        hs.eventtap.keyStroke({}, 104)
-        return
-    end
-
+--- Switch to the specified input source ID
+--- @param sourceID string The input source ID to switch to
+local function switchInputSource(sourceID)
     local maxRetries = 3
     local retryCount = 0
     local success = false
 
     while not success and retryCount < maxRetries do
-        success = hs.keycodes.setMethod(method)
+        success = hs.keycodes.currentSourceID(sourceID)
         if not success then
             retryCount = retryCount + 1
             if retryCount < maxRetries then
@@ -86,9 +128,9 @@ local function switchInputMethod(method)
     end
 
     if success then
-        obj.logger.df("Successfully switched to input method: %s", method)
+        obj.logger.df("Successfully switched to input source: %s", sourceID)
     else
-        obj.logger.ef("Failed to switch to input method: %s after %d retries", method, maxRetries)
+        obj.logger.ef("Failed to switch to input source: %s after %d retries", sourceID, maxRetries)
     end
 end
 
@@ -96,41 +138,34 @@ end
    Event Handling
 ]]
 
---- Create an event handler for input method switching
---- @param mapping table The key-to-method mapping
+--- Create an event handler for input source switching
+--- @param keyCodeMapping table The keycode-to-source-ID mapping
 --- @return function The event handler function
-local function createEventHandler(mapping)
+local function createEventHandler(keyCodeMapping)
     return function(ev)
-        local key = hs.keycodes.map[ev:getKeyCode()]
-        local method = mapping[key]
+        local sourceID = keyCodeMapping[ev:getKeyCode()]
 
-        if method == nil then return end
+        if sourceID == nil then return end
 
-        obj.logger.df("Switching input method to: %s", method)
-        local success, err = pcall(switchInputMethod, method)
+        obj.logger.df("Switching input source to: %s", sourceID)
+        local success, err = pcall(switchInputSource, sourceID)
         if not success then
-            obj.logger.ef("Failed to switch input method: %s", err)
+            obj.logger.ef("Failed to switch input source: %s", err)
         end
     end
 end
 
 --- Handle a single modifier key press event
---- @param keys table The keys to monitor
+--- @param modifierKeyCodes table The modifier keycodes to monitor
+--- @param regularKeyCodes table The regular keycodes to monitor
 --- @param handler function The handler function
 --- @return hs.eventtap The event tap object
-local function addSingleModKeyPressEventListener(keys, handler)
-    local targetKeyCodes = {}
-    for _, v in pairs(keys) do
-        targetKeyCodes[v] = true
-    end
-
+local function addKeyPressEventListener(modifierKeyCodes, regularKeyCodes, handler)
     local lastKeyCode = 0
     local lastFlagCount = 0
 
     local function resetState()
-        if lastKeyCode ~= 0 then
-            lastKeyCode = 0
-        end
+        lastKeyCode = 0
     end
 
     local function eventhandler(event)
@@ -138,14 +173,30 @@ local function addSingleModKeyPressEventListener(keys, handler)
         local flag = event:getFlags()
 
         if event:getType() == hs.eventtap.event.types.keyDown then
-            return resetState()
+            resetState()
+
+            if regularKeyCodes[code] then
+                handler(event)
+                return true
+            end
+
+            return false
+        end
+
+        if event:getType() == hs.eventtap.event.types.keyUp then
+            if regularKeyCodes[code] then
+                return true
+            end
+
+            return false
         end
 
         if event:getType() == hs.eventtap.event.types.flagsChanged then
             local currentFlagCount = getTableSize(flag)
+
             if currentFlagCount == 0 then
                 if lastFlagCount == 1 and code == lastKeyCode then
-                    if not targetKeyCodes[hs.keycodes.map[code]] then
+                    if not modifierKeyCodes[code] then
                         resetState()
                     else
                         handler(hs.eventtap.event.newKeyEvent(code, false))
@@ -164,10 +215,16 @@ local function addSingleModKeyPressEventListener(keys, handler)
             end
             lastFlagCount = currentFlagCount
         end
+
+        return false
     end
 
     return hs.eventtap.new(
-        { hs.eventtap.event.types.keyDown, hs.eventtap.event.types.flagsChanged },
+        {
+            hs.eventtap.event.types.keyDown,
+            hs.eventtap.event.types.keyUp,
+            hs.eventtap.event.types.flagsChanged
+        },
         eventhandler
     )
 end
@@ -179,8 +236,27 @@ end
 --- Handle an input event
 --- @param ev hs.eventtap.event The event to handle
 function obj:handleEvent(ev)
-    local handler = createEventHandler(self.mapping)
+    local keyCodeMapping = buildKeyCodeMapping(self.mapping)
+    local handler = createEventHandler(keyCodeMapping)
     handler(ev)
+end
+
+--- Print enabled input source names and IDs to the Hammerspoon Console
+function obj:listInputSources()
+    local methodNames = hs.keycodes.methods()
+    local methodIDs = hs.keycodes.methods(true)
+    local layoutNames = hs.keycodes.layouts()
+    local layoutIDs = hs.keycodes.layouts(true)
+
+    print("Input methods:")
+    for i, sourceID in ipairs(methodIDs) do
+        print(string.format("  %s -> %s", methodNames[i] or "(unknown)", sourceID))
+    end
+
+    print("Keyboard layouts:")
+    for i, sourceID in ipairs(layoutIDs) do
+        print(string.format("  %s -> %s", layoutNames[i] or "(unknown)", sourceID))
+    end
 end
 
 --- Start the Eikana spoon
@@ -216,12 +292,9 @@ end
 --- Bind key method mapping to event tap
 --- @return hs.eventtap The event tap object
 function obj:bindKeyMethodMapping()
-    local keys = {}
-    for k in pairs(self.mapping) do
-        table.insert(keys, k)
-    end
+    local keyCodeMapping, modifierKeyCodes, regularKeyCodes = buildKeyCodeMapping(self.mapping)
 
-    return addSingleModKeyPressEventListener(keys, createEventHandler(self.mapping))
+    return addKeyPressEventListener(modifierKeyCodes, regularKeyCodes, createEventHandler(keyCodeMapping))
 end
 
 return obj

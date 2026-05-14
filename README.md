@@ -4,22 +4,27 @@
 
 English | [日本語](README.ja.md) | [简体中文](README.zh-CN.md)
 
-A [Hammerspoon](https://www.hammerspoon.org/) Spoon for switching macOS input methods by pressing a modifier key by itself. Inspired by [cmd-eikana](https://github.com/iMasanari/cmd-eikana).
+A [Hammerspoon](https://www.hammerspoon.org/) Spoon for switching macOS input sources by source ID when you press a modifier key by itself. Inspired by [cmd-eikana](https://github.com/iMasanari/cmd-eikana).
+
+Eikana is useful in two common setups:
+
+- US keyboard users who type Japanese can get JIS-style one-key English/Japanese switching with the left and right Command keys.
+- JIS keyboard users who do not primarily type Japanese can remap the `Eisuu` and `Kana` keys to switch to their own input sources.
 
 By default:
 
 | Key | Action |
 | --- | --- |
-| Left Command | Switch to `Romaji` |
-| Right Command | Switch to `Hiragana` |
+| Left Command | Switch to `com.apple.keylayout.ABC` |
+| Right Command | Switch to `com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese` |
 
-You can also map `cmd`, `rightcmd`, `alt`, `rightalt`, `shift`, `rightshift`, `ctrl`, and `rightctrl` to other enabled macOS input methods.
+You can also map `cmd`, `rightcmd`, `alt`, `rightalt`, `shift`, `rightshift`, `ctrl`, `rightctrl`, `eisuu`, and `kana` to other enabled macOS input source IDs.
 
 ## Requirements
 
 - macOS
 - [Hammerspoon](https://www.hammerspoon.org/)
-- The target input methods must already be enabled in macOS System Settings.
+- The target input sources must already be enabled in macOS System Settings.
 
 ## Installation
 
@@ -32,7 +37,7 @@ hs.loadSpoon("Eikana")
 spoon.Eikana:start()
 ```
 
-Reload Hammerspoon. You can now press left Command for Romaji and right Command for Hiragana.
+Reload Hammerspoon. You can now press left Command for ABC and right Command for Japanese.
 
 ## Configuration
 
@@ -40,14 +45,15 @@ Add Eikana configuration to `~/.hammerspoon/init.lua`. Configuration options mus
 
 ### Add Custom Mappings
 
-`userMapping` adds new mappings or overrides individual default mappings.
+`userMapping` adds new mappings or overrides individual default mappings. Values are macOS input source IDs. `eisuu` and `kana` are only intercepted when you configure them explicitly.
 
 ```lua
 hs.loadSpoon("Eikana")
 
 spoon.Eikana.userMapping = {
-  rightcmd = "Pinyin – Simplified",
-  rightalt = "Wubi – Simplified",
+  rightcmd = "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese",
+  rightalt = "com.apple.inputmethod.SCIM.WBX",
+  kana = "com.apple.inputmethod.SCIM.WBX",
 }
 
 spoon.Eikana:start()
@@ -62,9 +68,10 @@ hs.loadSpoon("Eikana")
 
 spoon.Eikana.override = true
 spoon.Eikana.userMapping = {
-  cmd = "Romaji",
-  rightcmd = "Hiragana",
-  rightalt = "Pinyin – Simplified",
+  cmd = "com.apple.keylayout.ABC",
+  rightcmd = "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese",
+  rightalt = "com.apple.inputmethod.SCIM.WBX",
+  kana = "com.apple.inputmethod.SCIM.WBX",
 }
 
 spoon.Eikana:start()
@@ -87,27 +94,43 @@ spoon.SpoonInstall:andUse("Eikana", {
   repo = "Eikana",
   config = {
     userMapping = {
-      rightalt = "Pinyin – Simplified",
+      rightalt = "com.apple.inputmethod.SCIM.WBX",
+      kana = "com.apple.inputmethod.SCIM.WBX",
     },
   },
   start = true,
 })
 ```
 
-## Input Method Names
+## Input Source IDs
 
-Custom mappings must use the exact input method name reported by Hammerspoon.
+Custom mappings must use input source IDs, not localized input method names.
 
-1. Open the Hammerspoon Console.
-2. Type this command, but do not run it yet:
+To print all enabled input source names and IDs, open the Hammerspoon Console and run:
 
 ```lua
-hs.keycodes.currentMethod()
+spoon.Eikana:listInputSources()
 ```
 
-3. Switch macOS to the input method you want to map.
-4. Run the command in the Hammerspoon Console.
-5. Use the returned string in `userMapping`.
+To inspect the current input source ID directly:
+
+```lua
+hs.keycodes.currentSourceID()
+```
+
+Common IDs include:
+
+| Input source | Source ID |
+| --- | --- |
+| ABC | `com.apple.keylayout.ABC` |
+| U.S. | `com.apple.keylayout.US` |
+| Pinyin keyboard layout | `com.apple.keylayout.PinyinKeyboard` |
+| Japanese - Hiragana | `com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese` |
+| Japanese - Kana | `com.apple.inputmethod.Kotoeri.KanaTyping.Japanese` |
+| Wubi - Simplified | `com.apple.inputmethod.SCIM.WBX` |
+| Pinyin - Traditional | `com.apple.inputmethod.TCIM.Pinyin` |
+
+These IDs can vary by macOS version and installed input method. Prefer `spoon.Eikana:listInputSources()` for the exact values on your Mac.
 
 ## License
 
