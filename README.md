@@ -106,6 +106,8 @@ spoon.SpoonInstall:andUse("Eikana", {
 
 Custom mappings must use input source IDs, not localized input method names.
 
+In macOS, an input source can be either a keyboard layout, such as ABC or U.S., or an input method, such as Japanese or Wubi. Keyboard layouts output characters directly, while input methods use a conversion engine. Eikana can switch both kinds by source ID.
+
 To print all enabled input source names and IDs, open the Hammerspoon Console and run:
 
 ```lua
@@ -122,13 +124,13 @@ Common IDs include:
 
 | Input source | Source ID |
 | --- | --- |
-| ABC | `com.apple.keylayout.ABC` |
-| U.S. | `com.apple.keylayout.US` |
-| Pinyin keyboard layout | `com.apple.keylayout.PinyinKeyboard` |
+| English - ABC | `com.apple.keylayout.ABC` |
+| English - U.S. | `com.apple.keylayout.US` |
 | Japanese - Hiragana | `com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese` |
 | Japanese - Kana | `com.apple.inputmethod.Kotoeri.KanaTyping.Japanese` |
-| Wubi - Simplified | `com.apple.inputmethod.SCIM.WBX` |
-| Pinyin - Traditional | `com.apple.inputmethod.TCIM.Pinyin` |
+| Chinese - Pinyin keyboard layout | `com.apple.keylayout.PinyinKeyboard` |
+| Chinese - Wubi Simplified | `com.apple.inputmethod.SCIM.WBX` |
+| Chinese - Zhuyin | `com.apple.inputmethod.TCIM.Zhuyin` |
 
 These IDs can vary by macOS version and installed input method. Prefer `spoon.Eikana:listInputSources()` for the exact values on your Mac.
 

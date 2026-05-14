@@ -106,6 +106,8 @@ spoon.SpoonInstall:andUse("Eikana", {
 
 カスタム割り当てには、ローカライズされた入力メソッド名ではなく、入力ソース ID を使います。
 
+macOS の入力ソースには、ABC や U.S. のようなキーボードレイアウトと、日本語や五筆画のような入力メソッドがあります。キーボードレイアウトは文字を直接入力し、入力メソッドは変換エンジンを使います。Eikana はどちらも source ID で切り替えられます。
+
 有効化済みの入力ソース名と ID を表示するには、Hammerspoon Console で次を実行します。
 
 ```lua
@@ -122,13 +124,13 @@ hs.keycodes.currentSourceID()
 
 | 入力ソース | Source ID |
 | --- | --- |
-| ABC | `com.apple.keylayout.ABC` |
-| U.S. | `com.apple.keylayout.US` |
-| 拼音キーボードレイアウト | `com.apple.keylayout.PinyinKeyboard` |
+| 英語 - ABC | `com.apple.keylayout.ABC` |
+| 英語 - U.S. | `com.apple.keylayout.US` |
 | 日本語 - ひらがな | `com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese` |
 | 日本語 - かな入力 | `com.apple.inputmethod.Kotoeri.KanaTyping.Japanese` |
-| 五筆画 - 簡体字 | `com.apple.inputmethod.SCIM.WBX` |
-| 拼音 - 繁体字 | `com.apple.inputmethod.TCIM.Pinyin` |
+| 中国語 - 拼音キーボードレイアウト | `com.apple.keylayout.PinyinKeyboard` |
+| 中国語 - 五筆画 簡体字 | `com.apple.inputmethod.SCIM.WBX` |
+| 中国語 - 注音 | `com.apple.inputmethod.TCIM.Zhuyin` |
 
 ID は macOS のバージョンやインストール済み入力メソッドによって異なる場合があります。自分の Mac の正確な値は `spoon.Eikana:listInputSources()` で確認してください。
 

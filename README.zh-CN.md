@@ -106,6 +106,8 @@ spoon.SpoonInstall:andUse("Eikana", {
 
 自定义映射必须使用输入源 ID，而不是本地化后的输入法名称。
 
+在 macOS 中，输入源既可以是 ABC、U.S. 这类键盘布局，也可以是日文、五笔画这类输入法。键盘布局会直接输出字符，输入法会经过转换引擎。Eikana 可以通过 source ID 切换这两类输入源。
+
 打开 Hammerspoon Console，运行下面的命令可以列出所有已启用输入源的名称和 ID：
 
 ```lua
@@ -122,13 +124,13 @@ hs.keycodes.currentSourceID()
 
 | 输入源 | Source ID |
 | --- | --- |
-| ABC | `com.apple.keylayout.ABC` |
-| U.S. | `com.apple.keylayout.US` |
-| 拼音键盘布局 | `com.apple.keylayout.PinyinKeyboard` |
+| 英文 - ABC | `com.apple.keylayout.ABC` |
+| 英文 - U.S. | `com.apple.keylayout.US` |
 | 日文 - 平假名 | `com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese` |
 | 日文 - 假名输入 | `com.apple.inputmethod.Kotoeri.KanaTyping.Japanese` |
-| 五笔画 - 简体 | `com.apple.inputmethod.SCIM.WBX` |
-| 拼音 - 繁体 | `com.apple.inputmethod.TCIM.Pinyin` |
+| 中文 - 拼音键盘布局 | `com.apple.keylayout.PinyinKeyboard` |
+| 中文 - 五笔画简体 | `com.apple.inputmethod.SCIM.WBX` |
+| 中文 - 注音 | `com.apple.inputmethod.TCIM.Zhuyin` |
 
 ID 可能随 macOS 版本和安装的输入法变化。建议使用 `spoon.Eikana:listInputSources()` 获取你机器上的准确值。
 
