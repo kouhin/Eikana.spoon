@@ -1,97 +1,114 @@
 # Eikana.spoon
 
-> A [cmd-eikana](https://github.com/iMasanari/cmd-eikana) like Hammerspoon spoon plugin.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## What's that?
+English | [日本語](README.ja.md) | [简体中文](README.zh-CN.md)
 
-Eikana is a hammerspoon plugin that can be used to switch between alphanumeric/kana mode by pressing left / right command key only. Inspired by [cmd-eikana](https://github.com/iMasanari/cmd-eikana).
+A [Hammerspoon](https://www.hammerspoon.org/) Spoon for switching macOS input methods by pressing a modifier key by itself. Inspired by [cmd-eikana](https://github.com/iMasanari/cmd-eikana).
 
-And it can also be used to switch between input methods by only pressing modifier keys (`cmd` / `rightcmd` / `alt` / `rightalt` / `shift` / `rightshift` / `ctrl` / `rightctrl`).
+By default:
+
+| Key | Action |
+| --- | --- |
+| Left Command | Switch to `Romaji` |
+| Right Command | Switch to `Hiragana` |
+
+You can also map `cmd`, `rightcmd`, `alt`, `rightalt`, `shift`, `rightshift`, `ctrl`, and `rightctrl` to other enabled macOS input methods.
+
+## Requirements
+
+- macOS
+- [Hammerspoon](https://www.hammerspoon.org/)
+- The target input methods must already be enabled in macOS System Settings.
 
 ## Installation
 
-Install [Hammerspoon](http://www.hammerspoon.org) and extract [Eikana.spoon.zip](https://github.com/kouhin/Eikana.spoon/releases/latest) to `~/.hammerspoon/Spoons`.
+Download `Eikana.spoon.zip` from [Releases](https://github.com/kouhin/Eikana.spoon/releases/latest), then extract `Eikana.spoon` into `~/.hammerspoon/Spoons`.
 
-## Usage
-
-Manually, [download](https://github.com/kouhin/Eikana.spoon/releases/latest) the zip file. Load, configure, and start the plugin in `~/.hammerspoon/init.lua`:
+Add the following to your Hammerspoon config file, `~/.hammerspoon/init.lua`:
 
 ```lua
-hs.loadSpoon('Eikana')                 -- initialize the plugin
-spoon.Eikana:start()                   -- enable keyboard shortcuts
+hs.loadSpoon("Eikana")
+spoon.Eikana:start()
 ```
 
-Alternatively, you can use [SpoonInstall](https://www.hammerspoon.org/Spoons/SpoonInstall.html).
-
-``` lua
-hs.loadSpoon("SpoonInstall")
-
-spoon.SpoonInstall.repos.Eikana = {
-   url = "https://github.com/kouhin/Eikana.spoon",
-   desc = "Eikana spoon repository",
-   branch = "main",
-}
-
-spoon.SpoonInstall:andUse("Eikana", {
-  repo = "Eikana",
-  start = true
-})
-```
+Reload Hammerspoon. You can now press left Command for Romaji and right Command for Hiragana.
 
 ## Configuration
 
-By default, you can switch between alphanumberic / kana by left cmd and right cmd without any configuration.
+Add Eikana configuration to `~/.hammerspoon/init.lua`. Configuration options must be set before `spoon.Eikana:start()`.
 
-And there are options for customize the key mapping.
+### Add Custom Mappings
 
-- `userMapping`: Add extra key mappings to your input methods.
-- `override`: Override the default key mapping (Disable left cmd → alphanumberic, right cmd → kana)
-
-For manual installtion:
+`userMapping` adds new mappings or overrides individual default mappings.
 
 ```lua
-hs.loadSpoon('Eikana')                 -- initialize the plugin
+hs.loadSpoon("Eikana")
+
 spoon.Eikana.userMapping = {
-  rightcmd = 'Pinyin - Simplified',
-  rightalt = 'Wubi - Simplified'
+  rightcmd = "Pinyin – Simplified",
+  rightalt = "Wubi – Simplified",
 }
--- Uncomment the following line to override default mapping (cmd: Eisuu, rightcmd: Kana)
--- spoon.Eikana.override = true
-spoon.Eikana:start()                   -- enable keyboard shortcuts
+
+spoon.Eikana:start()
 ```
 
-For SpoonInstall:
+### Replace All Defaults
 
-``` lua
+Set `override = true` if you do not want the built-in left/right Command mappings.
+
+```lua
+hs.loadSpoon("Eikana")
+
+spoon.Eikana.override = true
+spoon.Eikana.userMapping = {
+  cmd = "Romaji",
+  rightcmd = "Hiragana",
+  rightalt = "Pinyin – Simplified",
+}
+
+spoon.Eikana:start()
+```
+
+### SpoonInstall
+
+If you use [SpoonInstall](https://www.hammerspoon.org/Spoons/SpoonInstall.html), put this in `~/.hammerspoon/init.lua`. SpoonInstall applies the `config` table before calling `start = true`.
+
+```lua
 hs.loadSpoon("SpoonInstall")
 
 spoon.SpoonInstall.repos.Eikana = {
-   url = "https://github.com/kouhin/Eikana.spoon",
-   desc = "Eikana spoon repository",
-   branch = "main",
+  url = "https://github.com/kouhin/Eikana.spoon",
+  desc = "Eikana spoon repository",
+  branch = "main",
 }
 
 spoon.SpoonInstall:andUse("Eikana", {
   repo = "Eikana",
   config = {
-    -- Uncomment the following line to override default mapping (cmd: Eisuu, rightcmd: Kana)
-    -- override = true,
     userMapping = {
-      rightalt = "Pinyin - Simplified"
-    }
+      rightalt = "Pinyin – Simplified",
+    },
   },
-  start = true
+  start = true,
 })
-
 ```
 
-## How to get the name of the input method?
+## Input Method Names
 
-1. Open `Console` from hammperspoon menu.
-2. Enter this command without executing it yet:`hs.keycodes.currentMethod()`.
-3. Switch to desired input method
-4. Run command
+Custom mappings must use the exact input method name reported by Hammerspoon.
+
+1. Open the Hammerspoon Console.
+2. Type this command, but do not run it yet:
+
+```lua
+hs.keycodes.currentMethod()
+```
+
+3. Switch macOS to the input method you want to map.
+4. Run the command in the Hammerspoon Console.
+5. Use the returned string in `userMapping`.
 
 ## License
 
-MIT
+Eikana.spoon is released under the [MIT License](LICENSE).
