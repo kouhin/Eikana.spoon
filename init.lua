@@ -118,7 +118,7 @@ local function switchInputSource(sourceID)
     local success = false
 
     while not success and retryCount < maxRetries do
-        success = hs.keycodes.currentSourceID(sourceID)
+        success = hs.keycodes.currentSourceID(sourceID) == true
         if not success then
             retryCount = retryCount + 1
             if retryCount < maxRetries then
