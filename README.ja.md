@@ -25,6 +25,7 @@ Eikana は、主に次のような使い方に向いています。
 - macOS
 - [Hammerspoon](https://www.hammerspoon.org/)
 - 切り替え先の入力ソースが macOS のシステム設定で有効化されていること
+- 推奨：日本語以外の入力メソッドに切り替える場合は [macism](https://github.com/laishulu/macism) 4.0 以降。詳しくは[入力メソッドへの切り替え](#入力メソッドへの切り替え)を参照してください。
 
 ## インストール
 
@@ -100,6 +101,24 @@ spoon.SpoonInstall:andUse("Eikana", {
   },
   start = true,
 })
+```
+
+## 入力メソッドへの切り替え
+
+Hammerspoon のようにバックグラウンドで動くアプリが macOS の `TISSelectInputSource` API で中国語・日本語・韓国語・ベトナム語の入力メソッドを選ぶと、切り替えが反映されないことがよくあります。メニューバーには新しい入力メソッドが表示されるのに、入力中のアプリでは元の入力メソッドのままになります。これを避けるため、Eikana は切り替え先によって方法を変えます。
+
+| 切り替え先 | Eikana の切り替え方法 |
+| --- | --- |
+| キーボードレイアウト（`com.apple.keylayout.*`） | `TISSelectInputSource`。キーボードレイアウトでは確実に動作します |
+| 日本語（`com.apple.inputmethod.Kotoeri.*.Japanese`） | JIS キーボードと同じように `Kana` キーを送信 |
+| その他の入力メソッド | [macism](https://github.com/laishulu/macism) があれば macism、なければ `TISSelectInputSource` |
+
+macism 4.0 以降は、メニューバーの入力メニューと同じように、フォーカスのあるアプリに切り替えを依頼します。それより前のバージョンは一時的なウインドウを表示する方法で、一瞬フォーカスを奪い、切り替え直後に入力した最初の数文字が前の入力メソッドで入力されることがあります。macism は [GitHub Releases](https://github.com/laishulu/macism/releases) からダウンロードするか、`brew install laishulu/homebrew/macism` でインストールします。`macism --version` でバージョンを確認してから、Hammerspoon を再読み込みしてください。
+
+Eikana は `/opt/homebrew/bin` と `/usr/local/bin` から macism を探します。見つからない場合は、起動時に Hammerspoon Console に警告を出します。別の場所にある macism を使う場合や、macism を使わない場合は、`spoon.Eikana:start()` より前に `macismPath` を設定します。
+
+```lua
+spoon.Eikana.macismPath = "/path/to/macism" -- または false
 ```
 
 ## 入力ソース ID

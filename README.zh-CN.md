@@ -25,6 +25,7 @@ Eikana 主要适合两类使用场景：
 - macOS
 - [Hammerspoon](https://www.hammerspoon.org/)
 - 目标输入源必须已在 macOS 系统设置中启用。
+- 推荐：如果要切换到日文以外的输入法，请安装 [macism](https://github.com/laishulu/macism) 4.0 或更高版本。详见[切换到输入法](#切换到输入法)。
 
 ## 安装
 
@@ -100,6 +101,24 @@ spoon.SpoonInstall:andUse("Eikana", {
   },
   start = true,
 })
+```
+
+## 切换到输入法
+
+Hammerspoon 这类在后台运行的 App 用 macOS 的 `TISSelectInputSource` API 切换到中文、日文、韩文、越南文输入法时，经常不生效：菜单栏已经显示新的输入法，但正在输入的 App 仍然使用原来的输入法。为了避免这个问题，Eikana 会根据目标选择不同的切换方式：
+
+| 目标 | Eikana 的切换方式 |
+| --- | --- |
+| 键盘布局（`com.apple.keylayout.*`） | `TISSelectInputSource`，对键盘布局是可靠的 |
+| 日文（`com.apple.inputmethod.Kotoeri.*.Japanese`） | 像 JIS 键盘一样发送 `Kana` 键 |
+| 其他输入法 | 安装了 [macism](https://github.com/laishulu/macism) 时使用 macism，否则使用 `TISSelectInputSource` |
+
+macism 4.0 及以上版本会像菜单栏里的输入法菜单一样，请当前拥有焦点的 App 自己切换。更早的版本改为弹出一个临时窗口，会短暂抢走焦点，切换后马上输入的头几个字符可能还会进入之前的输入法。可以从 [GitHub Releases](https://github.com/laishulu/macism/releases) 下载，或者执行 `brew install laishulu/homebrew/macism` 安装。用 `macism --version` 确认版本后，重新加载 Hammerspoon。
+
+Eikana 会在 `/opt/homebrew/bin` 和 `/usr/local/bin` 中查找 macism。找不到时，Eikana 会在启动时向 Hammerspoon Console 输出警告。如果 macism 在其他位置，或者不想使用 macism，请在 `spoon.Eikana:start()` 之前设置 `macismPath`：
+
+```lua
+spoon.Eikana.macismPath = "/path/to/macism" -- 或 false
 ```
 
 ## 输入源 ID

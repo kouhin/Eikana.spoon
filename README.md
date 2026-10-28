@@ -25,6 +25,7 @@ You can also map `cmd`, `rightcmd`, `alt`, `rightalt`, `shift`, `rightshift`, `c
 - macOS
 - [Hammerspoon](https://www.hammerspoon.org/)
 - The target input sources must already be enabled in macOS System Settings.
+- Recommended: [macism](https://github.com/laishulu/macism) 4.0 or later, if you switch to input methods other than Japanese. See [Switching to Input Methods](#switching-to-input-methods).
 
 ## Installation
 
@@ -100,6 +101,24 @@ spoon.SpoonInstall:andUse("Eikana", {
   },
   start = true,
 })
+```
+
+## Switching to Input Methods
+
+When an app running in the background, such as Hammerspoon, selects a Chinese, Japanese, Korean, or Vietnamese input method with the macOS `TISSelectInputSource` API, the switch often does not take effect: the menu bar shows the new input method, but the app you are typing in keeps using the old one. To avoid this, Eikana switches differently depending on the target:
+
+| Target | How Eikana switches |
+| --- | --- |
+| Keyboard layouts (`com.apple.keylayout.*`) | `TISSelectInputSource`, which is reliable for keyboard layouts |
+| Japanese (`com.apple.inputmethod.Kotoeri.*.Japanese`) | Posts the `Kana` key, as a JIS keyboard does |
+| Other input methods | [macism](https://github.com/laishulu/macism) when installed, otherwise `TISSelectInputSource` |
+
+macism 4.0 and later ask the focused app to switch, the same way the Input menu in the menu bar does. Earlier versions show a temporary window instead, which briefly takes focus and can let the first characters you type go to the previous input method. Install macism from [GitHub Releases](https://github.com/laishulu/macism/releases) or with `brew install laishulu/homebrew/macism`, check the version with `macism --version`, and then reload Hammerspoon.
+
+Eikana looks for macism in `/opt/homebrew/bin` and `/usr/local/bin`. If it is not found, Eikana logs a warning in the Hammerspoon Console at startup. To use another location, or to never use macism, set `macismPath` before `spoon.Eikana:start()`:
+
+```lua
+spoon.Eikana.macismPath = "/path/to/macism" -- or false
 ```
 
 ## Input Source IDs
