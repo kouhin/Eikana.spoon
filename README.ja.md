@@ -4,7 +4,7 @@
 
 [English](README.md) | 日本語 | [简体中文](README.zh-CN.md)
 
-修飾キーを単独で押すだけで、macOS の入力ソースを source ID で切り替える [Hammerspoon](https://www.hammerspoon.org/) Spoon です。[cmd-eikana](https://github.com/iMasanari/cmd-eikana) に影響を受けています。
+修飾キーを単独で押すだけで、macOS の入力ソースを切り替える [Hammerspoon](https://www.hammerspoon.org/) Spoon です。[cmd-eikana](https://github.com/iMasanari/cmd-eikana) に影響を受けています。
 
 Eikana は、主に次のような使い方に向いています。
 
@@ -15,8 +15,8 @@ Eikana は、主に次のような使い方に向いています。
 
 | キー | 動作 |
 | --- | --- |
-| 左 Command | `com.apple.keylayout.ABC` に切り替え |
-| 右 Command | `com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese` に切り替え |
+| 左 Command | 英語（ABC）に切り替え |
+| 右 Command | 日本語入力に切り替え |
 
 `cmd`、`rightcmd`、`alt`、`rightalt`、`shift`、`rightshift`、`ctrl`、`rightctrl`、`eisuu`、`kana` を、macOS で有効化済みのほかの入力ソース ID に割り当てられます。
 
@@ -25,6 +25,7 @@ Eikana は、主に次のような使い方に向いています。
 - macOS
 - [Hammerspoon](https://www.hammerspoon.org/)
 - 切り替え先の入力ソースが macOS のシステム設定で有効化されていること
+- 任意: 入力メソッドの切り替えに問題がある場合は [macism](https://github.com/laishulu/macism)
 
 ## インストール
 
@@ -38,6 +39,21 @@ spoon.Eikana:start()
 ```
 
 Hammerspoon をリロードすると、左 Command で ABC、右 Command で日本語入力に切り替えられます。
+
+### 入力切り替えを改善する（任意）
+
+メニューバーには切り替え先の入力メソッドが表示されているのに、入力すると英字のままになる場合は、[macism](https://github.com/laishulu/macism) の導入で改善することがあります。
+
+Homebrew でインストールします。
+
+```sh
+brew tap laishulu/homebrew
+brew install macism
+```
+
+インストール後、Hammerspoon の設定をリロードしてください。Eikana はインストール済みの macism を自動的に使用するため、既存のキー割り当てを変更する必要はありません。macism をインストールせずに Eikana を使うこともできます。
+
+macism のインストール・削除後は、Hammerspoon をリロードしてください。切り替えがうまくいかない場合は、Hammerspoon Console を開き、macism が検出されているかとエラーメッセージを確認してください。
 
 ## 設定
 

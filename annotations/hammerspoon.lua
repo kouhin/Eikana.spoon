@@ -53,11 +53,22 @@ function Logger.ef(format, ...) end
 
 ---@class hs.timer
 
+---@class hs.task
+local Task = {}
+
+---@return hs.task|false
+function Task:start() end
+
+---@return hs.task
+function Task:terminate() end
+
 ---@class hs
 ---@field keycodes hs.keycodes
 ---@field eventtap hs.eventtap.module
 ---@field timer hs.timer
 ---@field logger table
+---@field fs table
+---@field task table
 hs = {}
 hs.keycodes = {}
 hs.eventtap = {}
@@ -65,6 +76,23 @@ hs.eventtap.event = {}
 hs.eventtap.event.types = {}
 hs.timer = {}
 hs.logger = {}
+hs.fs = {}
+hs.task = {}
+
+---@param command string
+---@param with_user_env? boolean
+---@return string, boolean|nil, string, integer
+function hs.execute(command, with_user_env) end
+
+---@param path string
+---@return table|nil
+function hs.fs.attributes(path) end
+
+---@param path string
+---@param callback fun(exitCode: integer, stdout: string, stderr: string)
+---@param arguments string[]
+---@return hs.task|nil
+function hs.task.new(path, callback, arguments) end
 
 ---@param name string
 ---@param level string

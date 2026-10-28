@@ -5,6 +5,7 @@
 ---
 --- Features:
 ---   - Switch between input sources by source ID
+---   - Automatically use macism when installed, otherwise use hs.keycodes
 ---   - Customizable key mappings
 ---   - Support for both default and user-defined mappings
 ---
@@ -110,9 +111,39 @@ end
    Input Method Management
 ]]
 
+--- Check that a candidate is an executable file (following symlinks)
+--- @param path string The candidate path
+--- @return boolean
+local function isExecutable(path)
+    local attributes = hs.fs.attributes(path)
+    return attributes ~= nil
+        and attributes.mode == "file"
+        and attributes.permissions:find("x", 1, true) ~= nil
+end
+
+--- Find macism once per start, including Homebrew paths absent from GUI PATH
+--- @return string|nil The executable's absolute path
+local function findMacism()
+    for _, path in ipairs({ "/opt/homebrew/bin/macism", "/usr/local/bin/macism" }) do
+        if isExecutable(path) then return path end
+    end
+
+    local ok, output, success = pcall(hs.execute, "command -v macism", true)
+    if ok and success then
+        -- Shell startup files may print banners; accept only executable paths.
+        for path in output:gmatch("[^\r\n]+") do
+            if path:sub(1, 1) == "/" and isExecutable(path) then return path end
+        end
+    elseif not ok then
+        obj.logger.wf("Could not search the login shell PATH for macism: %s", output)
+    end
+
+    return nil
+end
+
 --- Switch to the specified input source ID
 --- @param sourceID string The input source ID to switch to
-local function switchInputSource(sourceID)
+local function switchWithKeycodes(sourceID)
     local maxRetries = 3
     local retryCount = 0
     local success = false
@@ -131,6 +162,48 @@ local function switchInputSource(sourceID)
         obj.logger.df("Successfully switched to input source: %s", sourceID)
     else
         obj.logger.ef("Failed to switch to input source: %s after %d retries", sourceID, maxRetries)
+    end
+end
+
+--- Switch asynchronously with macism, or use the original hs.keycodes backend
+--- @param sourceID string The input source ID to switch to
+local function switchInputSource(sourceID)
+    if obj._macismPath == nil then
+        switchWithKeycodes(sourceID)
+        return
+    end
+
+    -- Serialize switches: while a process is running, keep only the latest
+    -- requested source so older processes cannot finish after newer ones.
+    if obj._switchTask ~= nil then
+        obj._pendingSourceID = sourceID
+        return
+    end
+
+    local task
+    task = hs.task.new(obj._macismPath, function(exitCode, _, stderr)
+        -- stop()/start() may have cancelled this task in the meantime.
+        if obj._switchTask ~= task then return end
+        obj._switchTask = nil
+
+        if exitCode == 0 then
+            obj.logger.df("macism completed for input source: %s", sourceID)
+        else
+            obj.logger.ef("macism failed for input source %s (exit %d): %s",
+                sourceID, exitCode, stderr or "")
+        end
+
+        local pendingSourceID = obj._pendingSourceID
+        obj._pendingSourceID = nil
+        if pendingSourceID ~= nil then switchInputSource(pendingSourceID) end
+    end, { sourceID })
+
+    -- Keep the task alive and pass the ID as an argument, never through a shell.
+    obj._switchTask = task
+    if task == nil or not task:start() then
+        obj._switchTask = nil
+        obj.logger.ef("Could not start macism at %s for input source: %s",
+            obj._macismPath, sourceID)
     end
 end
 
@@ -260,10 +333,16 @@ function obj:listInputSources()
 end
 
 --- Start the Eikana spoon
+--- Detects macism on every start and logs the selected switching backend.
+--- macism failures are logged; they do not silently fall back to hs.keycodes.
 function obj:start()
-    if self.eventtap ~= nil then
-        self.eventtap:stop()
-        self.eventtap = nil
+    self:stop()
+
+    self._macismPath = findMacism()
+    if self._macismPath ~= nil then
+        obj.logger.i("Using macism for input source switching: " .. self._macismPath)
+    else
+        obj.logger.i("macism not found; using hs.keycodes for input source switching")
     end
 
     self.mapping = {}
@@ -282,11 +361,18 @@ function obj:start()
 end
 
 --- Stop the Eikana spoon
+--- Cancels the current macism task and discards any queued switch.
 function obj:stop()
-    if self.eventtap == nil then return end
-    self.eventtap:stop()
-    self.eventtap = nil
-    obj.logger.i("Eikana stopped")
+    self._pendingSourceID = nil
+    local task = self._switchTask
+    self._switchTask = nil
+    if task ~= nil then task:terminate() end
+
+    if self.eventtap ~= nil then
+        self.eventtap:stop()
+        self.eventtap = nil
+        obj.logger.i("Eikana stopped")
+    end
 end
 
 --- Bind key method mapping to event tap

@@ -1,4 +1,6 @@
-.PHONY: build clean
+LUA ?= lua
+
+.PHONY: build clean test
 
 build:
 	@mkdir -p build/Eikana.spoon
@@ -9,3 +11,6 @@ build:
 
 clean:
 	rm -rf build/*
+
+test:
+	$(LUA) tests/run.lua

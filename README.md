@@ -4,7 +4,7 @@
 
 English | [日本語](README.ja.md) | [简体中文](README.zh-CN.md)
 
-A [Hammerspoon](https://www.hammerspoon.org/) Spoon for switching macOS input sources by source ID when you press a modifier key by itself. Inspired by [cmd-eikana](https://github.com/iMasanari/cmd-eikana).
+A [Hammerspoon](https://www.hammerspoon.org/) Spoon that lets you switch macOS input sources by pressing a modifier key by itself. Inspired by [cmd-eikana](https://github.com/iMasanari/cmd-eikana).
 
 Eikana is useful in two common setups:
 
@@ -15,8 +15,8 @@ By default:
 
 | Key | Action |
 | --- | --- |
-| Left Command | Switch to `com.apple.keylayout.ABC` |
-| Right Command | Switch to `com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese` |
+| Left Command | Switch to English (ABC) |
+| Right Command | Switch to Japanese |
 
 You can also map `cmd`, `rightcmd`, `alt`, `rightalt`, `shift`, `rightshift`, `ctrl`, `rightctrl`, `eisuu`, and `kana` to other enabled macOS input source IDs.
 
@@ -25,6 +25,7 @@ You can also map `cmd`, `rightcmd`, `alt`, `rightalt`, `shift`, `rightshift`, `c
 - macOS
 - [Hammerspoon](https://www.hammerspoon.org/)
 - The target input sources must already be enabled in macOS System Settings.
+- Optional: [macism](https://github.com/laishulu/macism), if you experience input-method switching problems.
 
 ## Installation
 
@@ -38,6 +39,21 @@ spoon.Eikana:start()
 ```
 
 Reload Hammerspoon. You can now press left Command for ABC and right Command for Japanese.
+
+### Improve input switching (optional)
+
+If the menu bar shows your chosen input method but typing still produces English letters, you can install [macism](https://github.com/laishulu/macism) to help with this problem.
+
+Install it with Homebrew:
+
+```sh
+brew tap laishulu/homebrew
+brew install macism
+```
+
+Then reload your Hammerspoon configuration. Eikana automatically uses macism when it is installed; your existing key mappings need no changes. You can also use Eikana without macism.
+
+After installing or removing macism, reload Hammerspoon again. If switching still does not work, open the Hammerspoon Console to check whether macism was detected and look for any error messages.
 
 ## Configuration
 

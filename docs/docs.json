@@ -1,5 +1,40 @@
 [
-	{
-		"name": "Eikana"
-	}
+  {
+    "name": "Eikana",
+    "type": "Module",
+    "desc": "Switch macOS input sources by source ID using standalone modifier keys or configured JIS keys.",
+    "doc": "Eikana uses macism when an executable is found at startup, otherwise it uses hs.keycodes.currentSourceID with up to three attempts. Detection checks /opt/homebrew/bin/macism, /usr/local/bin/macism, then the interactive login shell's PATH. Existing userMapping and override settings apply to both backends. macism runs asynchronously with one process at a time and only the latest pending request is retained. Process errors are logged without native fallback. Call start() again after installing, moving, or removing macism. Actual input-method activation depends on macism and macOS; verify text input as well as the menu bar icon.",
+    "items": [
+      {
+        "name": "start",
+        "type": "Method",
+        "def": "Eikana:start()",
+        "signature": "Eikana:start()",
+        "desc": "Detect the switching backend and start listening for configured keys.",
+        "doc": "Stops any previous listener and macism task, clears pending requests, detects macism, applies the key mappings, and starts the event listener. Logs the selected backend and detected executable path. Detection repeats on every call.",
+        "parameters": ["None"],
+        "returns": ["None"]
+      },
+      {
+        "name": "stop",
+        "type": "Method",
+        "def": "Eikana:stop()",
+        "signature": "Eikana:stop()",
+        "desc": "Stop listening and cancel macism work.",
+        "doc": "Stops the event listener, terminates the active macism process, and discards the pending source request. Safe to call more than once.",
+        "parameters": ["None"],
+        "returns": ["None"]
+      },
+      {
+        "name": "listInputSources",
+        "type": "Method",
+        "def": "Eikana:listInputSources()",
+        "signature": "Eikana:listInputSources()",
+        "desc": "Print enabled input source names and IDs.",
+        "doc": "Prints enabled input methods and keyboard layouts to the Hammerspoon Console. Use their source IDs in userMapping with either switching backend.",
+        "parameters": ["None"],
+        "returns": ["None"]
+      }
+    ]
+  }
 ]

@@ -4,7 +4,7 @@
 
 [English](README.md) | [日本語](README.ja.md) | 简体中文
 
-一个通过单独按下修饰键，并使用 source ID 切换 macOS 输入源的 [Hammerspoon](https://www.hammerspoon.org/) Spoon。灵感来自 [cmd-eikana](https://github.com/iMasanari/cmd-eikana)。
+一个让你通过单独按下修饰键来切换 macOS 输入源的 [Hammerspoon](https://www.hammerspoon.org/) Spoon。灵感来自 [cmd-eikana](https://github.com/iMasanari/cmd-eikana)。
 
 Eikana 主要适合两类使用场景：
 
@@ -15,8 +15,8 @@ Eikana 主要适合两类使用场景：
 
 | 按键 | 动作 |
 | --- | --- |
-| 左 Command | 切换到 `com.apple.keylayout.ABC` |
-| 右 Command | 切换到 `com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese` |
+| 左 Command | 切换到英文（ABC） |
+| 右 Command | 切换到日文输入 |
 
 你也可以把 `cmd`、`rightcmd`、`alt`、`rightalt`、`shift`、`rightshift`、`ctrl`、`rightctrl`、`eisuu`、`kana` 映射到其他已启用的 macOS 输入源 ID。
 
@@ -25,6 +25,7 @@ Eikana 主要适合两类使用场景：
 - macOS
 - [Hammerspoon](https://www.hammerspoon.org/)
 - 目标输入源必须已在 macOS 系统设置中启用。
+- 可选：[macism](https://github.com/laishulu/macism)，遇到输入法切换异常时可安装使用。
 
 ## 安装
 
@@ -38,6 +39,21 @@ spoon.Eikana:start()
 ```
 
 重新加载 Hammerspoon 后，就可以用左 Command 切换到 ABC，用右 Command 切换到日文输入。
+
+### 改善输入法切换（可选）
+
+如果菜单栏已经显示目标输入法，打字时却仍然输出英文，可以安装 [macism](https://github.com/laishulu/macism) 改善这一问题。
+
+通过 Homebrew 安装：
+
+```sh
+brew tap laishulu/homebrew
+brew install macism
+```
+
+安装后重新加载 Hammerspoon 配置即可。Eikana 会自动使用已安装的 macism，无需修改原有按键映射。没有安装 macism 也可以使用 Eikana。
+
+安装或卸载 macism 后，请重新加载 Hammerspoon。如果仍然无法正常切换，可打开 Hammerspoon Console，确认是否识别到 macism，并查看错误提示。
 
 ## 配置
 
