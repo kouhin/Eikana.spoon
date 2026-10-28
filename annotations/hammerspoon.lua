@@ -19,11 +19,27 @@ function EventtapEvent:getFlags() end
 ---@return integer
 function EventtapEvent:getType() end
 
+---@param property integer
+---@return number
+function EventtapEvent:getProperty(property) end
+
+---@param property integer
+---@param value number
+---@return hs.eventtap.event
+function EventtapEvent:setProperty(property, value) end
+
+---@return hs.eventtap.event
+function EventtapEvent:post() end
+
 ---@class hs.logger
 local Logger = {}
 
 ---@param message string
 function Logger.i(message) end
+
+---@param format string
+---@param ... any
+function Logger.f(format, ...) end
 
 ---@param format string
 ---@param ... any
@@ -40,8 +56,24 @@ function Logger.ef(format, ...) end
 ---@class hs.keycodes
 ---@field map table
 
+---@class hs.task
+local Task = {}
+
+---@return hs.task|boolean
+function Task:start() end
+
+---@return hs.task
+function Task:terminate() end
+
+---@class hs.timer
+local Timer = {}
+
+---@return hs.timer
+function Timer:stop() end
+
 ---@class hs.eventtap.event.module
 ---@field types hs.eventtap.event.types
+---@field properties hs.eventtap.event.properties
 
 ---@class hs.eventtap.module
 ---@field event hs.eventtap.event.module
@@ -51,19 +83,25 @@ function Logger.ef(format, ...) end
 ---@field keyUp integer
 ---@field flagsChanged integer
 
----@class hs.timer
+---@class hs.eventtap.event.properties
+---@field eventSourceUserData integer
 
 ---@class hs
 ---@field keycodes hs.keycodes
 ---@field eventtap hs.eventtap.module
----@field timer hs.timer
+---@field task table
+---@field timer table
+---@field fs table
 ---@field logger table
 hs = {}
 hs.keycodes = {}
 hs.eventtap = {}
 hs.eventtap.event = {}
 hs.eventtap.event.types = {}
+hs.eventtap.event.properties = {}
+hs.task = {}
 hs.timer = {}
+hs.fs = {}
 hs.logger = {}
 
 ---@param name string
@@ -93,14 +131,25 @@ function hs.eventtap.keyStroke(modifiers, key) end
 ---@return hs.eventtap
 function hs.eventtap.new(events, callback) end
 
+---@overload fun(key: string|integer, isDown: boolean): hs.eventtap.event
+---@param modifiers table
 ---@param key string|integer
 ---@param isDown boolean
 ---@return hs.eventtap.event
-function hs.eventtap.event.newKeyEvent(key, isDown) end
+function hs.eventtap.event.newKeyEvent(modifiers, key, isDown) end
+
+---@param launchPath string
+---@param callback fun(exitCode: integer, stdOut: string, stdErr: string)|nil
+---@param arguments string[]
+---@return hs.task
+function hs.task.new(launchPath, callback, arguments) end
 
 ---@param seconds number
 ---@param callback function
+---@return hs.timer
 function hs.timer.doAfter(seconds, callback) end
 
----@param microseconds integer
-function hs.timer.usleep(microseconds) end
+---@param path string
+---@param attribute? string
+---@return any
+function hs.fs.attributes(path, attribute) end
